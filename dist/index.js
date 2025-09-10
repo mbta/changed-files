@@ -431,6 +431,19 @@ const getArrayFromPaths = (paths, inputs) => {
     return Array.isArray(paths) ? paths : paths.split(inputs.separator);
 };
 const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, allFilteredDiffFiles, inputs, filePatterns = [], outputPrefix = '', workingDirectory }) => {
+    // Helper function to replace spaces with hyphens in file paths
+    const replaceSpacesInPath = (filePath) => {
+        return filePath.replace(/\s+/g, '-');
+    };
+
+    // Helper function to replace spaces in path arrays or strings
+    const replaceSpacesInPaths = (paths) => {
+        if (Array.isArray(paths)) {
+            return paths.map(replaceSpacesInPath);
+        }
+        return replaceSpacesInPath(paths);
+    };
+
     const addedFiles = await (0, changedFiles_1.getChangeTypeFiles)({
         inputs,
         changedFiles: allFilteredDiffFiles,
@@ -439,7 +452,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
     core.debug(`Added files: ${JSON.stringify(addedFiles)}`);
     await (0, utils_1.setOutput)({
         key: (0, utils_1.getOutputKey)('added_files', outputPrefix),
-        value: addedFiles.paths,
+        value: replaceSpacesInPaths(addedFiles.paths),
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir,
         json: inputs.json,
@@ -454,11 +467,12 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
     });
     await (0, utils_1.setOutput)({
         key: (0, utils_1.getOutputKey)('any_added', outputPrefix),
-        value: addedFiles.paths.length > 0,
+        value: (Array.isArray(addedFiles.paths) ? addedFiles.paths.length : (addedFiles.paths ? 1 : 0)) > 0,
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir,
         json: inputs.json
     });
+
     const copiedFiles = await (0, changedFiles_1.getChangeTypeFiles)({
         inputs,
         changedFiles: allFilteredDiffFiles,
@@ -467,7 +481,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
     core.debug(`Copied files: ${JSON.stringify(copiedFiles)}`);
     await (0, utils_1.setOutput)({
         key: (0, utils_1.getOutputKey)('copied_files', outputPrefix),
-        value: copiedFiles.paths,
+        value: replaceSpacesInPaths(copiedFiles.paths),
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir,
         json: inputs.json,
@@ -480,6 +494,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir
     });
+
     const modifiedFiles = await (0, changedFiles_1.getChangeTypeFiles)({
         inputs,
         changedFiles: allFilteredDiffFiles,
@@ -488,7 +503,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
     core.debug(`Modified files: ${JSON.stringify(modifiedFiles)}`);
     await (0, utils_1.setOutput)({
         key: (0, utils_1.getOutputKey)('modified_files', outputPrefix),
-        value: modifiedFiles.paths,
+        value: replaceSpacesInPaths(modifiedFiles.paths),
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir,
         json: inputs.json,
@@ -501,6 +516,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir
     });
+
     const renamedFiles = await (0, changedFiles_1.getChangeTypeFiles)({
         inputs,
         changedFiles: allFilteredDiffFiles,
@@ -509,7 +525,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
     core.debug(`Renamed files: ${JSON.stringify(renamedFiles)}`);
     await (0, utils_1.setOutput)({
         key: (0, utils_1.getOutputKey)('renamed_files', outputPrefix),
-        value: renamedFiles.paths,
+        value: replaceSpacesInPaths(renamedFiles.paths),
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir,
         json: inputs.json,
@@ -522,6 +538,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir
     });
+
     const typeChangedFiles = await (0, changedFiles_1.getChangeTypeFiles)({
         inputs,
         changedFiles: allFilteredDiffFiles,
@@ -530,7 +547,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
     core.debug(`Type changed files: ${JSON.stringify(typeChangedFiles)}`);
     await (0, utils_1.setOutput)({
         key: (0, utils_1.getOutputKey)('type_changed_files', outputPrefix),
-        value: typeChangedFiles.paths,
+        value: replaceSpacesInPaths(typeChangedFiles.paths),
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir,
         json: inputs.json,
@@ -543,6 +560,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir
     });
+
     const unmergedFiles = await (0, changedFiles_1.getChangeTypeFiles)({
         inputs,
         changedFiles: allFilteredDiffFiles,
@@ -551,7 +569,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
     core.debug(`Unmerged files: ${JSON.stringify(unmergedFiles)}`);
     await (0, utils_1.setOutput)({
         key: (0, utils_1.getOutputKey)('unmerged_files', outputPrefix),
-        value: unmergedFiles.paths,
+        value: replaceSpacesInPaths(unmergedFiles.paths),
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir,
         json: inputs.json,
@@ -564,6 +582,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir
     });
+
     const unknownFiles = await (0, changedFiles_1.getChangeTypeFiles)({
         inputs,
         changedFiles: allFilteredDiffFiles,
@@ -572,7 +591,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
     core.debug(`Unknown files: ${JSON.stringify(unknownFiles)}`);
     await (0, utils_1.setOutput)({
         key: (0, utils_1.getOutputKey)('unknown_files', outputPrefix),
-        value: unknownFiles.paths,
+        value: replaceSpacesInPaths(unknownFiles.paths),
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir,
         json: inputs.json,
@@ -585,6 +604,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir
     });
+
     const allChangedAndModifiedFiles = await (0, changedFiles_1.getAllChangeTypeFiles)({
         inputs,
         changedFiles: allFilteredDiffFiles
@@ -592,7 +612,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
     core.debug(`All changed and modified files: ${JSON.stringify(allChangedAndModifiedFiles)}`);
     await (0, utils_1.setOutput)({
         key: (0, utils_1.getOutputKey)('all_changed_and_modified_files', outputPrefix),
-        value: allChangedAndModifiedFiles.paths,
+        value: replaceSpacesInPaths(allChangedAndModifiedFiles.paths),
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir,
         json: inputs.json,
@@ -605,6 +625,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir
     });
+
     const allChangedFiles = await (0, changedFiles_1.getChangeTypeFiles)({
         inputs,
         changedFiles: allFilteredDiffFiles,
@@ -618,7 +639,7 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
     core.debug(`All changed files: ${JSON.stringify(allChangedFiles)}`);
     await (0, utils_1.setOutput)({
         key: (0, utils_1.getOutputKey)('all_changed_files', outputPrefix),
-        value: allChangedFiles.paths,
+        value: replaceSpacesInPaths(allChangedFiles.paths),
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir,
         json: inputs.json,
@@ -633,11 +654,12 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
     });
     await (0, utils_1.setOutput)({
         key: (0, utils_1.getOutputKey)('any_changed', outputPrefix),
-        value: allChangedFiles.paths.length > 0,
+        value: (Array.isArray(allChangedFiles.paths) ? allChangedFiles.paths.length : (allChangedFiles.paths ? 1 : 0)) > 0,
         writeOutputFiles: inputs.writeOutputFiles,
         outputDir: inputs.outputDir,
         json: inputs.json
     });
+
     const allOtherChangedFiles = await (0, changedFiles_1.getChangeTypeFiles)({
         inputs,
         changedFiles: allDiffFiles,
@@ -648,6 +670,252 @@ const setOutputsAndGetModifiedAndChangedFilesStatus = async ({ allDiffFiles, all
             changedFiles_1.ChangeTypeEnum.Renamed
         ]
     });
+    core.debug(`All other changed files: ${JSON.stringify(allOtherChangedFiles)}`);
+
+    // Helper function to get array from paths (handling both string and array types)
+    const getArrayFromPaths = (paths, inputs) => {
+        return Array.isArray(paths) ? paths : (paths ? paths.split(inputs.separator) : []);
+    };
+
+    const allOtherChangedFilesPaths = getArrayFromPaths(
+        replaceSpacesInPaths(allOtherChangedFiles.paths),
+        inputs
+    );
+    const allChangedFilesPaths = getArrayFromPaths(
+        replaceSpacesInPaths(allChangedFiles.paths),
+        inputs
+    );
+
+    const otherChangedFiles = allOtherChangedFilesPaths.filter(
+        (filePath) => !allChangedFilesPaths.includes(filePath)
+    );
+
+    const onlyChanged =
+        otherChangedFiles.length === 0 &&
+        (Array.isArray(allChangedFiles.paths) ? allChangedFiles.paths.length : (allChangedFiles.paths ? 1 : 0)) > 0 &&
+        filePatterns.length > 0;
+
+    await (0, utils_1.setOutput)({
+        key: (0, utils_1.getOutputKey)('only_changed', outputPrefix),
+        value: onlyChanged,
+        writeOutputFiles: inputs.writeOutputFiles,
+        outputDir: inputs.outputDir,
+        json: inputs.json
+    });
+
+    await (0, utils_1.setArrayOutput)({
+        key: 'other_changed_files',
+        inputs,
+        value: otherChangedFiles,
+        outputPrefix
+    });
+
+    await (0, utils_1.setOutput)({
+        key: (0, utils_1.getOutputKey)('other_changed_files_count', outputPrefix),
+        value: otherChangedFiles.length.toString(),
+        writeOutputFiles: inputs.writeOutputFiles,
+        outputDir: inputs.outputDir
+    });
+
+    const allModifiedFiles = await (0, changedFiles_1.getChangeTypeFiles)({
+        inputs,
+        changedFiles: allFilteredDiffFiles,
+        changeTypes: [
+            changedFiles_1.ChangeTypeEnum.Added,
+            changedFiles_1.ChangeTypeEnum.Copied,
+            changedFiles_1.ChangeTypeEnum.Modified,
+            changedFiles_1.ChangeTypeEnum.Renamed,
+            changedFiles_1.ChangeTypeEnum.Deleted
+        ]
+    });
+    core.debug(`All modified files: ${JSON.stringify(allModifiedFiles)}`);
+    await (0, utils_1.setOutput)({
+        key: (0, utils_1.getOutputKey)('all_modified_files', outputPrefix),
+        value: replaceSpacesInPaths(allModifiedFiles.paths),
+        writeOutputFiles: inputs.writeOutputFiles,
+        outputDir: inputs.outputDir,
+        json: inputs.json,
+        shouldEscape: inputs.escapeJson,
+        safeOutput: inputs.safeOutput
+    });
+
+    await (0, utils_1.setOutput)({
+        key: (0, utils_1.getOutputKey)('all_modified_files_count', outputPrefix),
+        value: allModifiedFiles.count,
+        writeOutputFiles: inputs.writeOutputFiles,
+        outputDir: inputs.outputDir
+    });
+
+    await (0, utils_1.setOutput)({
+        key: (0, utils_1.getOutputKey)('any_modified', outputPrefix),
+        value: (Array.isArray(allModifiedFiles.paths) ? allModifiedFiles.paths.length : (allModifiedFiles.paths ? 1 : 0)) > 0,
+        writeOutputFiles: inputs.writeOutputFiles,
+        outputDir: inputs.outputDir,
+        json: inputs.json
+    });
+
+    const allOtherModifiedFiles = await (0, changedFiles_1.getChangeTypeFiles)({
+        inputs,
+        changedFiles: allDiffFiles,
+        changeTypes: [
+            changedFiles_1.ChangeTypeEnum.Added,
+            changedFiles_1.ChangeTypeEnum.Copied,
+            changedFiles_1.ChangeTypeEnum.Modified,
+            changedFiles_1.ChangeTypeEnum.Renamed,
+            changedFiles_1.ChangeTypeEnum.Deleted
+        ]
+    });
+
+    const allOtherModifiedFilesPaths = getArrayFromPaths(
+        replaceSpacesInPaths(allOtherModifiedFiles.paths),
+        inputs
+    );
+
+    const allModifiedFilesPaths = getArrayFromPaths(
+        replaceSpacesInPaths(allModifiedFiles.paths),
+        inputs
+    );
+
+    const otherModifiedFiles = allOtherModifiedFilesPaths.filter(
+        (filePath) => !allModifiedFilesPaths.includes(filePath)
+    );
+
+    const onlyModified =
+        otherModifiedFiles.length === 0 &&
+        (Array.isArray(allModifiedFiles.paths) ? allModifiedFiles.paths.length : (allModifiedFiles.paths ? 1 : 0)) > 0 &&
+        filePatterns.length > 0;
+
+    await (0, utils_1.setOutput)({
+        key: (0, utils_1.getOutputKey)('only_modified', outputPrefix),
+        value: onlyModified,
+        writeOutputFiles: inputs.writeOutputFiles,
+        outputDir: inputs.outputDir,
+        json: inputs.json
+    });
+
+    await (0, utils_1.setArrayOutput)({
+        key: 'other_modified_files',
+        inputs,
+        value: otherModifiedFiles,
+        outputPrefix
+    });
+
+    await (0, utils_1.setOutput)({
+        key: (0, utils_1.getOutputKey)('other_modified_files_count', outputPrefix),
+        value: otherModifiedFiles.length.toString(),
+        writeOutputFiles: inputs.writeOutputFiles,
+        outputDir: inputs.outputDir
+    });
+
+    const deletedFiles = await (0, changedFiles_1.getChangeTypeFiles)({
+        inputs,
+        changedFiles: allFilteredDiffFiles,
+        changeTypes: [changedFiles_1.ChangeTypeEnum.Deleted]
+    });
+    core.debug(`Deleted files: ${JSON.stringify(deletedFiles)}`);
+
+    // Handle special directory deletion logic
+    if (
+        inputs.dirNamesDeletedFilesIncludeOnlyDeletedDirs &&
+        inputs.dirNames &&
+        workingDirectory
+    ) {
+        const newDeletedFilesPaths = [];
+        const deletedPathsArray = getArrayFromPaths(deletedFiles.paths, inputs);
+
+        for (const deletedPath of deletedPathsArray) {
+            const dirPath = require('path').join(workingDirectory, deletedPath);
+            core.debug(`Checking if directory exists: ${dirPath}`);
+            if (!(await (0, utils_1.exists)(dirPath))) {
+                core.debug(`Directory not found: ${dirPath}`);
+                newDeletedFilesPaths.push(replaceSpacesInPath(deletedPath));
+            }
+        }
+        deletedFiles.paths = inputs.json
+            ? newDeletedFilesPaths
+            : newDeletedFilesPaths.join(inputs.separator);
+        deletedFiles.count = newDeletedFilesPaths.length.toString();
+        core.debug(`New deleted files: ${JSON.stringify(deletedFiles)}`);
+    }
+
+    await (0, utils_1.setOutput)({
+        key: (0, utils_1.getOutputKey)('deleted_files', outputPrefix),
+        value: replaceSpacesInPaths(deletedFiles.paths),
+        writeOutputFiles: inputs.writeOutputFiles,
+        outputDir: inputs.outputDir,
+        json: inputs.json,
+        shouldEscape: inputs.escapeJson,
+        safeOutput: inputs.safeOutput
+    });
+
+    await (0, utils_1.setOutput)({
+        key: (0, utils_1.getOutputKey)('deleted_files_count', outputPrefix),
+        value: deletedFiles.count,
+        writeOutputFiles: inputs.writeOutputFiles,
+        outputDir: inputs.outputDir
+    });
+
+    await (0, utils_1.setOutput)({
+        key: (0, utils_1.getOutputKey)('any_deleted', outputPrefix),
+        value: (Array.isArray(deletedFiles.paths) ? deletedFiles.paths.length : (deletedFiles.paths ? 1 : 0)) > 0,
+        writeOutputFiles: inputs.writeOutputFiles,
+        outputDir: inputs.outputDir,
+        json: inputs.json
+    });
+
+    const allOtherDeletedFiles = await (0, changedFiles_1.getChangeTypeFiles)({
+        inputs,
+        changedFiles: allDiffFiles,
+        changeTypes: [changedFiles_1.ChangeTypeEnum.Deleted]
+    });
+
+    const allOtherDeletedFilesPaths = getArrayFromPaths(
+        replaceSpacesInPaths(allOtherDeletedFiles.paths),
+        inputs
+    );
+
+    const deletedFilesPaths = getArrayFromPaths(
+        replaceSpacesInPaths(deletedFiles.paths),
+        inputs
+    );
+
+    const otherDeletedFiles = allOtherDeletedFilesPaths.filter(
+        filePath => !deletedFilesPaths.includes(filePath)
+    );
+
+    const onlyDeleted =
+        otherDeletedFiles.length === 0 &&
+        (Array.isArray(deletedFiles.paths) ? deletedFiles.paths.length : (deletedFiles.paths ? 1 : 0)) > 0 &&
+        filePatterns.length > 0;
+
+    await (0, utils_1.setOutput)({
+        key: (0, utils_1.getOutputKey)('only_deleted', outputPrefix),
+        value: onlyDeleted,
+        writeOutputFiles: inputs.writeOutputFiles,
+        outputDir: inputs.outputDir,
+        json: inputs.json
+    });
+
+    await (0, utils_1.setArrayOutput)({
+        key: 'other_deleted_files',
+        inputs,
+        value: otherDeletedFiles,
+        outputPrefix
+    });
+
+    await (0, utils_1.setOutput)({
+        key: (0, utils_1.getOutputKey)('other_deleted_files_count', outputPrefix),
+        value: otherDeletedFiles.length.toString(),
+        writeOutputFiles: inputs.writeOutputFiles,
+        outputDir: inputs.outputDir
+    });
+
+    return {
+        anyModified: (Array.isArray(allModifiedFiles.paths) ? allModifiedFiles.paths.length : (allModifiedFiles.paths ? 1 : 0)) > 0,
+        anyChanged: (Array.isArray(allChangedFiles.paths) ? allChangedFiles.paths.length : (allChangedFiles.paths ? 1 : 0)) > 0
+    };
+};
+
     core.debug(`All other changed files: ${JSON.stringify(allOtherChangedFiles)}`);
     const allOtherChangedFilesPaths = getArrayFromPaths(allOtherChangedFiles.paths, inputs);
     const allChangedFilesPaths = getArrayFromPaths(allChangedFiles.paths, inputs);
@@ -3570,8 +3838,8 @@ class OidcClient {
             const res = yield httpclient
                 .getJson(id_token_url)
                 .catch(error => {
-                throw new Error(`Failed to get ID Token. \n 
-        Error Code : ${error.statusCode}\n 
+                throw new Error(`Failed to get ID Token. \n
+        Error Code : ${error.statusCode}\n
         Error Message: ${error.message}`);
             });
             const id_token = (_a = res.result) === null || _a === void 0 ? void 0 : _a.value;
@@ -64340,7 +64608,7 @@ class Document {
             replacer = undefined;
         }
         const { aliasDuplicateObjects, anchorPrefix, flow, keepUndefined, onTagObj, tag } = options ?? {};
-        const { onAnchor, setAnchors, sourceObjects } = anchors.createNodeAnchors(this, 
+        const { onAnchor, setAnchors, sourceObjects } = anchors.createNodeAnchors(this,
         // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
         anchorPrefix || 'a');
         const ctx = {
@@ -71044,7 +71312,7 @@ exports.visitAsync = visitAsync;
 /************************************************************************/
 /******/ 	// The module cache
 /******/ 	var __webpack_module_cache__ = {};
-/******/ 	
+/******/
 /******/ 	// The require function
 /******/ 	function __nccwpck_require__(moduleId) {
 /******/ 		// Check if module is in cache
@@ -71058,7 +71326,7 @@ exports.visitAsync = visitAsync;
 /******/ 			loaded: false,
 /******/ 			exports: {}
 /******/ 		};
-/******/ 	
+/******/
 /******/ 		// Execute the module function
 /******/ 		var threw = true;
 /******/ 		try {
@@ -71067,14 +71335,14 @@ exports.visitAsync = visitAsync;
 /******/ 		} finally {
 /******/ 			if(threw) delete __webpack_module_cache__[moduleId];
 /******/ 		}
-/******/ 	
+/******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
-/******/ 	
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-/******/ 	
+/******/
 /************************************************************************/
 /******/ 	/* webpack/runtime/node module decorator */
 /******/ 	(() => {
@@ -71084,19 +71352,19 @@ exports.visitAsync = visitAsync;
 /******/ 			return module;
 /******/ 		};
 /******/ 	})();
-/******/ 	
+/******/
 /******/ 	/* webpack/runtime/compat */
-/******/ 	
+/******/
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
-/******/ 	
+/******/
 /************************************************************************/
-/******/ 	
+/******/
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
 /******/ 	var __webpack_exports__ = __nccwpck_require__(5915);
 /******/ 	module.exports = __webpack_exports__;
-/******/ 	
+/******/
 /******/ })()
 ;
 //# sourceMappingURL=index.js.map
