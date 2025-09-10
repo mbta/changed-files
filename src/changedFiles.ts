@@ -21,13 +21,13 @@ import {
   setArrayOutput
 } from './utils'
 
-// Helper function to replace spaces with hyphens in file paths
-const replaceSpacesInPath = (filePath: string): string => {
+// Centralized function to replace spaces with hyphens in file paths
+export const replaceSpacesInPath = (filePath: string): string => {
   return filePath.replace(/\s+/g, '-')
 }
 
-// Helper function to replace spaces with hyphens in file path arrays
-const replaceSpacesInPaths = (filePaths: string[]): string[] => {
+// Centralized function to replace spaces with hyphens in file path arrays
+export const replaceSpacesInPaths = (filePaths: string[]): string[] => {
   return filePaths.map(replaceSpacesInPath)
 }
 
@@ -329,7 +329,7 @@ function* getFilePaths({
 }): Generator<string> {
   for (const filePath of filePaths) {
     let processedPath = filePath
-    
+
     if (inputs.dirNames) {
       if (dirNamesIncludeFilePatterns.length > 0) {
         const isWin = isWindows()
@@ -344,7 +344,7 @@ function* getFilePaths({
         excludeCurrentDir: inputs.dirNamesExcludeCurrentDir
       })
     }
-    
+
     yield replaceSpacesInPath(processedPath)
   }
 }

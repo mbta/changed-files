@@ -475,16 +475,17 @@ export const gitRenamedFiles = async ({
     .map((line: string) => {
       core.debug(`Renamed file: ${line}`)
       const [, oldPath, newPath] = line.split('\t')
+      const replaceSpaces = (str: string) => str.replace(/\s+/g, '-')
       if (isSubmodule) {
-        return `${normalizeSeparators(
+        return `${replaceSpaces(normalizeSeparators(
           path.join(parentDir, oldPath)
-        )}${oldNewSeparator}${normalizeSeparators(
+        ))}${oldNewSeparator}${replaceSpaces(normalizeSeparators(
           path.join(parentDir, newPath)
-        )}`
+        ))}`
       }
-      return `${normalizeSeparators(
+      return `${replaceSpaces(normalizeSeparators(
         oldPath
-      )}${oldNewSeparator}${normalizeSeparators(newPath)}`
+      ))}${oldNewSeparator}${replaceSpaces(normalizeSeparators(newPath))}`
     })
 }
 
@@ -578,15 +579,16 @@ export const getAllChangedFiles = async ({
   }
 
   const lines = stdout.split('\n').filter(Boolean)
+  const replaceSpaces = (str: string) => str.replace(/\s+/g, '-')
 
   for (const line of lines) {
     const [changeType, filePath, newPath = ''] = line.split('\t')
     const normalizedFilePath = isSubmodule
-      ? normalizeSeparators(path.join(parentDir, filePath))
-      : normalizeSeparators(filePath)
+      ? replaceSpaces(normalizeSeparators(path.join(parentDir, filePath)))
+      : replaceSpaces(normalizeSeparators(filePath))
     const normalizedNewPath = isSubmodule
-      ? normalizeSeparators(path.join(parentDir, newPath))
-      : normalizeSeparators(newPath)
+      ? replaceSpaces(normalizeSeparators(path.join(parentDir, newPath)))
+      : replaceSpaces(normalizeSeparators(newPath))
 
     if (changeType.startsWith('R')) {
       if (outputRenamedFilesAsDeletedAndAdded) {

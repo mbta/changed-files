@@ -17,7 +17,7 @@ export const DEFAULT_VALUES_OF_UNSUPPORTED_API_INPUTS: Partial<Inputs> = {
   recoverFilesIgnoreSeparator: '\n',
   includeAllOldNewRenamedFiles: false,
   oldNewSeparator: ',',
-  oldNewFilesSeparator: ' ',
+  oldNewFilesSeparator: ',',
   skipInitialFetch: false,
   fetchAdditionalSubmoduleHistory: false,
   dirNamesDeletedFilesIncludeOnlyDeletedDirs: false,
