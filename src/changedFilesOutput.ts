@@ -16,6 +16,14 @@ const getArrayFromPaths = (
   return Array.isArray(paths) ? paths : paths.split(inputs.separator)
 }
 
+// Helper function to replace spaces with hyphens in file paths
+const replaceSpacesInPaths = (paths: string | string[]): string | string[] => {
+  if (Array.isArray(paths)) {
+    return paths.map(path => path.replace(/\s+/g, '-'))
+  }
+  return paths.replace(/\s+/g, '-')
+}
+
 export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   allDiffFiles,
   allFilteredDiffFiles,
@@ -39,7 +47,7 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   core.debug(`Added files: ${JSON.stringify(addedFiles)}`)
   await setOutput({
     key: getOutputKey('added_files', outputPrefix),
-    value: addedFiles.paths,
+    value: replaceSpacesInPaths(addedFiles.paths),
     writeOutputFiles: inputs.writeOutputFiles,
     outputDir: inputs.outputDir,
     json: inputs.json,
@@ -68,7 +76,7 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   core.debug(`Copied files: ${JSON.stringify(copiedFiles)}`)
   await setOutput({
     key: getOutputKey('copied_files', outputPrefix),
-    value: copiedFiles.paths,
+    value: replaceSpacesInPaths(copiedFiles.paths),
     writeOutputFiles: inputs.writeOutputFiles,
     outputDir: inputs.outputDir,
     json: inputs.json,
@@ -91,7 +99,7 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   core.debug(`Modified files: ${JSON.stringify(modifiedFiles)}`)
   await setOutput({
     key: getOutputKey('modified_files', outputPrefix),
-    value: modifiedFiles.paths,
+    value: replaceSpacesInPaths(modifiedFiles.paths),
     writeOutputFiles: inputs.writeOutputFiles,
     outputDir: inputs.outputDir,
     json: inputs.json,
@@ -114,7 +122,7 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   core.debug(`Renamed files: ${JSON.stringify(renamedFiles)}`)
   await setOutput({
     key: getOutputKey('renamed_files', outputPrefix),
-    value: renamedFiles.paths,
+    value: replaceSpacesInPaths(renamedFiles.paths),
     writeOutputFiles: inputs.writeOutputFiles,
     outputDir: inputs.outputDir,
     json: inputs.json,
@@ -137,7 +145,7 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   core.debug(`Type changed files: ${JSON.stringify(typeChangedFiles)}`)
   await setOutput({
     key: getOutputKey('type_changed_files', outputPrefix),
-    value: typeChangedFiles.paths,
+    value: replaceSpacesInPaths(typeChangedFiles.paths),
     writeOutputFiles: inputs.writeOutputFiles,
     outputDir: inputs.outputDir,
     json: inputs.json,
@@ -160,7 +168,7 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   core.debug(`Unmerged files: ${JSON.stringify(unmergedFiles)}`)
   await setOutput({
     key: getOutputKey('unmerged_files', outputPrefix),
-    value: unmergedFiles.paths,
+    value: replaceSpacesInPaths(unmergedFiles.paths),
     writeOutputFiles: inputs.writeOutputFiles,
     outputDir: inputs.outputDir,
     json: inputs.json,
@@ -183,7 +191,7 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   core.debug(`Unknown files: ${JSON.stringify(unknownFiles)}`)
   await setOutput({
     key: getOutputKey('unknown_files', outputPrefix),
-    value: unknownFiles.paths,
+    value: replaceSpacesInPaths(unknownFiles.paths),
     writeOutputFiles: inputs.writeOutputFiles,
     outputDir: inputs.outputDir,
     json: inputs.json,
@@ -209,7 +217,7 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   )
   await setOutput({
     key: getOutputKey('all_changed_and_modified_files', outputPrefix),
-    value: allChangedAndModifiedFiles.paths,
+    value: replaceSpacesInPaths(allChangedAndModifiedFiles.paths),
     writeOutputFiles: inputs.writeOutputFiles,
     outputDir: inputs.outputDir,
     json: inputs.json,
@@ -237,7 +245,7 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   core.debug(`All changed files: ${JSON.stringify(allChangedFiles)}`)
   await setOutput({
     key: getOutputKey('all_changed_files', outputPrefix),
-    value: allChangedFiles.paths,
+    value: replaceSpacesInPaths(allChangedFiles.paths),
     writeOutputFiles: inputs.writeOutputFiles,
     outputDir: inputs.outputDir,
     json: inputs.json,
@@ -273,11 +281,11 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   core.debug(`All other changed files: ${JSON.stringify(allOtherChangedFiles)}`)
 
   const allOtherChangedFilesPaths: string[] = getArrayFromPaths(
-    allOtherChangedFiles.paths,
+    replaceSpacesInPaths(allOtherChangedFiles.paths),
     inputs
   )
   const allChangedFilesPaths: string[] = getArrayFromPaths(
-    allChangedFiles.paths,
+    replaceSpacesInPaths(allChangedFiles.paths),
     inputs
   )
 
@@ -326,7 +334,7 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   core.debug(`All modified files: ${JSON.stringify(allModifiedFiles)}`)
   await setOutput({
     key: getOutputKey('all_modified_files', outputPrefix),
-    value: allModifiedFiles.paths,
+    value: replaceSpacesInPaths(allModifiedFiles.paths),
     writeOutputFiles: inputs.writeOutputFiles,
     outputDir: inputs.outputDir,
     json: inputs.json,
@@ -362,12 +370,12 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   })
 
   const allOtherModifiedFilesPaths: string[] = getArrayFromPaths(
-    allOtherModifiedFiles.paths,
+    replaceSpacesInPaths(allOtherModifiedFiles.paths),
     inputs
   )
 
   const allModifiedFilesPaths: string[] = getArrayFromPaths(
-    allModifiedFiles.paths,
+    replaceSpacesInPaths(allModifiedFiles.paths),
     inputs
   )
 
@@ -420,7 +428,7 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
       core.debug(`Checking if directory exists: ${dirPath}`)
       if (!(await exists(dirPath))) {
         core.debug(`Directory not found: ${dirPath}`)
-        newDeletedFilesPaths.push(deletedPath)
+        newDeletedFilesPaths.push(deletedPath.replace(/\s+/g, '-'))
       }
     }
     deletedFiles.paths = inputs.json
@@ -432,7 +440,7 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
 
   await setOutput({
     key: getOutputKey('deleted_files', outputPrefix),
-    value: deletedFiles.paths,
+    value: replaceSpacesInPaths(deletedFiles.paths),
     writeOutputFiles: inputs.writeOutputFiles,
     outputDir: inputs.outputDir,
     json: inputs.json,
@@ -462,12 +470,12 @@ export const setOutputsAndGetModifiedAndChangedFilesStatus = async ({
   })
 
   const allOtherDeletedFilesPaths: string[] = getArrayFromPaths(
-    allOtherDeletedFiles.paths,
+    replaceSpacesInPaths(allOtherDeletedFiles.paths),
     inputs
   )
 
   const deletedFilesPaths: string[] = getArrayFromPaths(
-    deletedFiles.paths,
+    replaceSpacesInPaths(deletedFiles.paths),
     inputs
   )
 
