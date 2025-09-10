@@ -21,6 +21,16 @@ import {
   setArrayOutput
 } from './utils'
 
+// Helper function to replace spaces with hyphens in file paths
+const replaceSpacesInPath = (filePath: string): string => {
+  return filePath.replace(/\s+/g, '-')
+}
+
+// Helper function to replace spaces with hyphens in file path arrays
+const replaceSpacesInPaths = (filePaths: string[]): string[] => {
+  return filePaths.map(replaceSpacesInPath)
+}
+
 export const processChangedFiles = async ({
   filePatterns,
   allDiffFiles,
@@ -184,16 +194,19 @@ export const getRenamedFiles = async ({
     }
   }
 
+  // Replace spaces with hyphens in renamed files
+  const processedRenamedFiles = replaceSpacesInPaths(renamedFiles)
+
   if (inputs.json) {
     return {
-      paths: jsonOutput({value: renamedFiles, shouldEscape: inputs.escapeJson}),
-      count: renamedFiles.length.toString()
+      paths: jsonOutput({value: processedRenamedFiles, shouldEscape: inputs.escapeJson}),
+      count: processedRenamedFiles.length.toString()
     }
   }
 
   return {
-    paths: renamedFiles.join(inputs.oldNewFilesSeparator),
-    count: renamedFiles.length.toString()
+    paths: processedRenamedFiles.join(inputs.oldNewFilesSeparator),
+    count: processedRenamedFiles.length.toString()
   }
 }
 
@@ -297,6 +310,11 @@ export const getAllDiffFiles = async ({
     }
   }
 
+  // Replace spaces with hyphens in all file paths
+  for (const changeType of Object.keys(files) as ChangeTypeEnum[]) {
+    files[changeType] = replaceSpacesInPaths(files[changeType])
+  }
+
   return files
 }
 
@@ -310,22 +328,24 @@ function* getFilePaths({
   dirNamesIncludeFilePatterns: string[]
 }): Generator<string> {
   for (const filePath of filePaths) {
+    let processedPath = filePath
+    
     if (inputs.dirNames) {
       if (dirNamesIncludeFilePatterns.length > 0) {
         const isWin = isWindows()
         const matchOptions = {dot: true, windows: isWin, noext: true}
         if (mm.isMatch(filePath, dirNamesIncludeFilePatterns, matchOptions)) {
-          yield filePath
+          yield replaceSpacesInPath(filePath)
         }
       }
-      yield getDirnameMaxDepth({
+      processedPath = getDirnameMaxDepth({
         relativePath: filePath,
         dirNamesMaxDepth: inputs.dirNamesMaxDepth,
         excludeCurrentDir: inputs.dirNamesExcludeCurrentDir
       })
-    } else {
-      yield filePath
     }
+    
+    yield replaceSpacesInPath(processedPath)
   }
 }
 
@@ -353,9 +373,9 @@ function* getChangeTypeFilesGenerator({
       dirNamesIncludeFilePatterns
     })) {
       if (isWindows() && inputs.usePosixPathSeparator) {
-        yield convertPath(filePath, 'mixed')
+        yield replaceSpacesInPath(convertPath(filePath, 'mixed'))
       } else {
-        yield filePath
+        yield replaceSpacesInPath(filePath)
       }
     }
   }
@@ -404,9 +424,9 @@ function* getAllChangeTypeFilesGenerator({
     dirNamesIncludeFilePatterns
   })) {
     if (isWindows() && inputs.usePosixPathSeparator) {
-      yield convertPath(filePath, 'mixed')
+      yield replaceSpacesInPath(convertPath(filePath, 'mixed'))
     } else {
-      yield filePath
+      yield replaceSpacesInPath(filePath)
     }
   }
 }
@@ -480,13 +500,13 @@ export const getChangedFilesFromGithubAPI = async ({
 
     if (changeType === ChangeTypeEnum.Renamed) {
       if (inputs.outputRenamedFilesAsDeletedAndAdded) {
-        changedFiles[ChangeTypeEnum.Deleted].push(item.previous_filename || '')
-        changedFiles[ChangeTypeEnum.Added].push(item.filename)
+        changedFiles[ChangeTypeEnum.Deleted].push(replaceSpacesInPath(item.previous_filename || ''))
+        changedFiles[ChangeTypeEnum.Added].push(replaceSpacesInPath(item.filename))
       } else {
-        changedFiles[ChangeTypeEnum.Renamed].push(item.filename)
+        changedFiles[ChangeTypeEnum.Renamed].push(replaceSpacesInPath(item.filename))
       }
     } else {
-      changedFiles[changeType].push(item.filename)
+      changedFiles[changeType].push(replaceSpacesInPath(item.filename))
     }
   }
 
